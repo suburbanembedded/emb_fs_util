@@ -1,7 +1,7 @@
 #pragma once
 
 #include "spiffs_int.hpp"
-#include "../W25Q16JV.hpp"
+#include "W25Q16JV.hpp"
 
 class spiffs_int_w25q16jv : public SPIFFS_int
 {

@@ -1,0 +1,43 @@
+add_library(spi_flash
+	spi_flash/W25Q16JV.cpp
+)
+
+target_link_libraries(spi_flash
+	stm32h7xx_hal
+	stm32h7xx_ll
+
+	common_util
+)
+
+target_include_directories(spi_flash
+	PUBLIC
+		${CMAKE_CURRENT_SOURCE_DIR}/spi_flash
+)
+
+add_library(spiffs_util
+	spiffs_util/spiffs_int.cpp
+)
+
+target_link_libraries(spiffs_util
+	spiffs
+	freertos_cpp_util
+)
+
+target_include_directories(spiffs_util
+	PUBLIC
+		${CMAKE_CURRENT_SOURCE_DIR}/spiffs_util
+)
+
+add_library(spiffs_flash
+	spiffs_flash/spiffs_int_w25q16jv.cpp
+)
+
+target_link_libraries(spiffs_flash
+	spiffs_util
+	spi_flash
+)
+
+target_include_directories(spiffs_flash
+	PUBLIC
+		${CMAKE_CURRENT_SOURCE_DIR}/spiffs_flash
+)
