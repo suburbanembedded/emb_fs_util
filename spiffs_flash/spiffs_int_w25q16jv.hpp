@@ -28,6 +28,11 @@ public:
 	}
 	s32_t write(struct spiffs_t* fs, u32_t addr, u32_t size, u8_t* src) override
 	{
+		if( size > get_page_size() )
+		{
+			return -1;
+		}
+
 		//we are alligned to page boundary
 		if(!m_flash->write_page(addr, size, src))
 		{
@@ -38,8 +43,18 @@ public:
 	}
 	s32_t erase(struct spiffs_t* fs, u32_t addr, u32_t size) override
 	{
+		if( (addr % get_block_size()) != 0)
+		{
+			return -1;
+		}
+
+		if( size != get_erase_size() )
+		{
+			return -1;
+		}
+
 		//we are alligned to block2 boundary
-		if(!m_flash->cmd_block2_erase(addr))
+		if(!m_flash->cmd_block64_erase(addr))
 		{
 			return -1;
 		}
@@ -62,11 +77,11 @@ public:
 	}
 	size_t get_block_size() override
 	{
-		return m_flash->BLOCK2_LEN;
+		return m_flash->BLOCK64_LEN;
 	}
 	size_t get_erase_size() override
 	{
-		return m_flash->BLOCK2_LEN;
+		return m_flash->BLOCK64_LEN;
 	}
 
 protected:

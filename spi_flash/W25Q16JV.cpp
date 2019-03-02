@@ -346,17 +346,34 @@ bool W25Q16JV::get_sector_erase_cmd(const uint32_t sector_num, QSPI_CommandTypeD
 	return true;
 }
 
-bool W25Q16JV::get_block64_erase_cmd(const uint32_t block64_num, QSPI_CommandTypeDef* const cmd_cfg)
+bool W25Q16JV::get_block32_erase_cmd(const uint32_t addr, QSPI_CommandTypeDef* const cmd_cfg)
 {
-	if(block64_num > BLOCK1_COUNT)
-	{
-		return false;
-	}
+	*cmd_cfg = QSPI_CommandTypeDef();
 
+	cmd_cfg->Instruction = uint32_t(STD_CMD::BLOCK_32K_ERASE);
+	cmd_cfg->Address = addr;
+	cmd_cfg->AlternateBytes = 0;
+	cmd_cfg->AddressSize = QSPI_ADDRESS_24_BITS;
+	cmd_cfg->AlternateBytesSize = QSPI_ALTERNATE_BYTES_8_BITS;
+	cmd_cfg->DummyCycles = 0;
+	cmd_cfg->InstructionMode = QSPI_INSTRUCTION_1_LINE;
+	cmd_cfg->AddressMode = QSPI_ADDRESS_1_LINE;
+	cmd_cfg->AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
+	cmd_cfg->DataMode = QSPI_DATA_NONE;
+	cmd_cfg->NbData = 0;
+	cmd_cfg->DdrMode = QSPI_DDR_MODE_DISABLE;
+	cmd_cfg->DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
+	cmd_cfg->SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
+
+	return true;
+}
+
+bool W25Q16JV::get_block64_erase_cmd(const uint32_t addr, QSPI_CommandTypeDef* const cmd_cfg)
+{
 	*cmd_cfg = QSPI_CommandTypeDef();
 
 	cmd_cfg->Instruction = uint32_t(STD_CMD::BLOCK_64K_ERASE);
-	cmd_cfg->Address = block64_num;
+	cmd_cfg->Address = addr;
 	cmd_cfg->AlternateBytes = 0;
 	cmd_cfg->AddressSize = QSPI_ADDRESS_24_BITS;
 	cmd_cfg->AlternateBytesSize = QSPI_ALTERNATE_BYTES_8_BITS;
@@ -764,7 +781,35 @@ bool W25Q16JV::cmd_sector_erase(const uint32_t addr)
 	return true;
 }
 
-bool W25Q16JV::cmd_block2_erase(const uint32_t addr)
+bool W25Q16JV::cmd_block32_erase(const uint32_t addr)
+{
+	QSPI_CommandTypeDef cmd = get_write_enable_cmd();
+	HAL_StatusTypeDef ret = HAL_QSPI_Command(m_qspi_handle, &cmd, COMMAND_DELAY_MS);
+	if(ret != HAL_OK)
+	{
+		return false;
+	}
+
+	if(!get_block32_erase_cmd(addr, &cmd))
+	{
+		return false;
+	}
+	ret = HAL_QSPI_Command(m_qspi_handle, &cmd, COMMAND_DELAY_MS);
+	if(ret != HAL_OK)
+	{
+		return false;
+	}
+
+	//poll for finished status
+	if(!poll_until_busy_clear(BLOCK1_ERASE_TIME_MAX_MS))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool W25Q16JV::cmd_block64_erase(const uint32_t addr)
 {
 	QSPI_CommandTypeDef cmd = get_write_enable_cmd();
 	HAL_StatusTypeDef ret = HAL_QSPI_Command(m_qspi_handle, &cmd, COMMAND_DELAY_MS);

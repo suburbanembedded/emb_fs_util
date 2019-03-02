@@ -61,9 +61,9 @@ void SPIFFS_int::initialize()
 	memset(&m_fs, 0, sizeof(m_fs));
 	m_fs.user_data = this;
 
-	m_spiffs_work_buf.resize(get_page_size()*2);
-	m_spiffs_fds.resize(32*4);
-	m_spiffs_cache_buf.resize((get_page_size()+32)*4);
+	m_spiffs_work_buf.resize(get_page_size()*2, 0);
+	m_spiffs_fds.resize(32*4, 0);
+	m_spiffs_cache_buf.resize((get_page_size()+32)*4, 0);
 }
 
 int SPIFFS_int::format()
@@ -71,7 +71,7 @@ int SPIFFS_int::format()
 	if(SPIFFS_mounted(&m_fs) == 0)
 	{
 		int mount_ret = mount();
-		if(mount_ret == SPIFFS_ERR_NOT_A_FS)
+		if(mount_ret != SPIFFS_ERR_NOT_A_FS)
 		{
 			unmount();
 		}
@@ -94,10 +94,8 @@ int SPIFFS_int::mount()
 		&m_fs,
 		&cfg,
 		m_spiffs_work_buf.data(),
-		m_spiffs_fds.data(),
-		m_spiffs_fds.size(),
-		m_spiffs_cache_buf.data(),
-		m_spiffs_cache_buf.size(),
+		m_spiffs_fds.data(), m_spiffs_fds.size(),
+		m_spiffs_cache_buf.data(), m_spiffs_cache_buf.size(),
 		0);
 
 	return res;

@@ -13,13 +13,13 @@ public:
 
 	static constexpr size_t SECTOR_LEN = 4*1024;
 
-	static constexpr size_t BLOCK1_LEN = 32*1024;
-	static constexpr size_t BLOCK2_LEN = 64*1024;
+	static constexpr size_t BLOCK32_LEN = 32*1024;
+	static constexpr size_t BLOCK64_LEN = 64*1024;
 
 	static constexpr size_t PAGE_COUNT   = 8192;
 	static constexpr size_t SECTOR_COUNT = 512;
-	static constexpr size_t BLOCK1_COUNT = 64;
-	static constexpr size_t BLOCK2_COUNT = 32;
+	static constexpr size_t BLOCK32_COUNT = 64;
+	static constexpr size_t BLOCK64_COUNT = 32;
 
 	static constexpr size_t RESET_ASSERT_US = 1;
 	static constexpr size_t RESET_DELAY_US = 30;
@@ -172,7 +172,8 @@ public:
 
 	bool cmd_chip_erase();
 	bool cmd_sector_erase(const uint32_t addr);
-	bool cmd_block2_erase(const uint32_t addr);
+	bool cmd_block32_erase(const uint32_t addr);
+	bool cmd_block64_erase(const uint32_t addr);
 
 	bool cmd_enable_quad_mode();
 
@@ -224,7 +225,8 @@ public:
 	static bool get_page_prgm_cmd(const uint32_t addr, const size_t len, QSPI_CommandTypeDef* const cmd_cfg);
 	static bool get_quad_page_prgm_cmd(const uint32_t addr, const size_t len, QSPI_CommandTypeDef* const cmd_cfg);
 	static bool get_sector_erase_cmd(const uint32_t sector_num, QSPI_CommandTypeDef* const cmd_cfg);
-	static bool get_block64_erase_cmd(const uint32_t block64_num, QSPI_CommandTypeDef* const cmd_cfg);
+	static bool get_block32_erase_cmd(const uint32_t addr, QSPI_CommandTypeDef* const cmd_cfg);
+	static bool get_block64_erase_cmd(const uint32_t addr, QSPI_CommandTypeDef* const cmd_cfg);
 	static QSPI_CommandTypeDef get_chip_erase_cmd();
 	static QSPI_CommandTypeDef get_power_down_cmd();
 	static QSPI_CommandTypeDef get_release_power_down_cmd();
