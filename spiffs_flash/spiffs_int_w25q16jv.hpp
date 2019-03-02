@@ -68,7 +68,7 @@ public:
 	}
 	size_t get_len_bytes() override
 	{
-		return 1*1024*1024;
+		return 2*1024*1024;
 	}
 
 	size_t get_page_size() override
