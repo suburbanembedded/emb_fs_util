@@ -14,6 +14,12 @@ target_include_directories(spi_flash
 		${CMAKE_CURRENT_SOURCE_DIR}/spi_flash
 )
 
+if(DEFINED Doxygen::doxygen)
+	doxygen_add_docs(spi_flash_docs
+		spi_flash/
+	)
+endif()
+
 add_library(spiffs_util
 	spiffs_util/spiffs_int.cpp
 )
@@ -22,6 +28,12 @@ target_link_libraries(spiffs_util
 	spiffs
 	freertos_cpp_util
 )
+
+if(DEFINED Doxygen::doxygen)
+	doxygen_add_docs(spiffs_util_docs
+		spiffs_util/
+	)
+endif()
 
 target_include_directories(spiffs_util
 	PUBLIC
@@ -41,3 +53,9 @@ target_include_directories(spiffs_flash
 	PUBLIC
 		${CMAKE_CURRENT_SOURCE_DIR}/spiffs_flash
 )
+
+if(DEFINED Doxygen::doxygen)
+	doxygen_add_docs(spiffs_flash_docs
+		spiffs_flash/
+	)
+endif()
