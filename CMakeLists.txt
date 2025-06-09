@@ -59,3 +59,26 @@ if(DEFINED Doxygen::doxygen)
 		spiffs_flash/
 	)
 endif()
+
+add_library(lfs_util
+	lfs_util/lfs_int.cpp
+)
+
+target_link_libraries(lfs_util
+	lfs
+	freertos_cpp_util
+)
+
+add_library(lfs_flash
+	lfs_flash/lfs_int_w25q16jv.cpp
+)
+
+target_link_libraries(lfs_flash
+	lfs_util
+	spi_flash
+)
+
+target_include_directories(lfs_flash
+	PUBLIC
+		${CMAKE_CURRENT_SOURCE_DIR}/lfs_flash
+)
