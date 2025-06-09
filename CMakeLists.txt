@@ -69,6 +69,11 @@ target_link_libraries(lfs_util
 	freertos_cpp_util
 )
 
+target_include_directories(lfs_util
+	PUBLIC
+		${CMAKE_CURRENT_SOURCE_DIR}/lfs_util
+)
+
 add_library(lfs_flash
 	lfs_flash/lfs_int_w25q16jv.cpp
 )

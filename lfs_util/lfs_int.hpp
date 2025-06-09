@@ -10,12 +10,13 @@
 
 #include "lfs.h"
 
+#include <atomic>
 #include <vector>
 
 extern "C"
 {
-	void lfs_lock_dispatch(const struct lfs_config *c);
-	void lfs_unlock_dispatch(const struct lfs_config *c);
+	int lfs_lock_dispatch(const struct lfs_config *c);
+	int lfs_unlock_dispatch(const struct lfs_config *c);
 
     int lfs_read_dispatch(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size);
     int lfs_write_dispatch(const struct lfs_config *c, lfs_block_t block,lfs_off_t off, const void *buffer, lfs_size_t size);
@@ -43,12 +44,12 @@ public:
 	int format();
 
 	int mount();
-	void unmount();
+	int unmount();
 
 	void set_flash();
 
-	void lock_fs();
-	void unlock_fs();
+	int lock_fs();
+	int unlock_fs();
 
 	virtual int read(lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size);
 	virtual int write(lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size);

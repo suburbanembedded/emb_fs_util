@@ -9,7 +9,7 @@
 #include "lfs_int.hpp"
 #include "W25Q16JV.hpp"
 
-class lfs_int_w25q16jv : public SPIFFS_int
+class lfs_int_w25q16jv : public LFS_int
 {
 public:
 
@@ -27,7 +27,7 @@ public:
 	{
 		const uint32_t addr = block * get_block_size() + off;
 
-		if(!m_flash->read4(addr, size, buffer))
+		if(!m_flash->read4(addr, size, static_cast<uint8_t*>(buffer)))
 		{
 			return LFS_ERR_IO;
 		}
@@ -44,7 +44,7 @@ public:
 		}
 
 		//we are alligned to page boundary
-		if(!m_flash->write_page(addr, size, buffer))
+		if(!m_flash->write_page(addr, size, static_cast<const uint8_t*>(buffer)))
 		{
 			return LFS_ERR_IO;
 		}

@@ -4,22 +4,22 @@
  * @license Licensed under the 3-Clause BSD license. See LICENSE for details
 */
 
-#include "spiffs_int.hpp"
+#include "lfs_int.hpp"
 
 extern "C"
 {
 
-void lfs_lock_dispatch(const struct lfs_config *c)
+int lfs_lock_dispatch(const struct lfs_config *c)
 {
 	LFS_int* const fs_int = static_cast<LFS_int*>(c->context);
 
-	fs_int->lock_fs();
+	return fs_int->lock_fs();
 }
-void lfs_unlock_dispatch(const struct lfs_config *c)
+int lfs_unlock_dispatch(const struct lfs_config *c)
 {
 	LFS_int* const fs_int = static_cast<LFS_int*>(c->context);
 
-	fs_int->unlock_fs();
+	return fs_int->unlock_fs();
 }
 
 int lfs_read_dispatch(const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size)
@@ -33,12 +33,6 @@ int lfs_write_dispatch(const struct lfs_config *c, lfs_block_t block, lfs_off_t 
 	LFS_int* const fs_int = static_cast<LFS_int*>(c->context);
 
 	return fs_int->write(block, off, buffer, size);
-}
-int lfs_erase_dispatch(const struct lfs_config *c, lfs_block_t block)
-{
-	LFS_int* const fs_int = static_cast<LFS_int*>(c->context);
-
-	return fs_int->erase(block);
 }
 int lfs_erase_dispatch(const struct lfs_config *c, lfs_block_t block)
 {
@@ -60,10 +54,12 @@ const lfs_config&  LFS_int::get_config() const
 	return m_config;
 }
 
-void SPIFFS_int::initialize()
+void LFS_int::initialize()
 {
 	m_fs = {};
-	m_config = {
+	m_config = (lfs_config) {
+		.context = this,
+
 		.read    = lfs_read_dispatch,
 		.prog    = lfs_write_dispatch,
 		.erase   = lfs_erase_dispatch,
@@ -77,17 +73,19 @@ void SPIFFS_int::initialize()
 		.block_count = get_len_bytes() / get_block_size(),
 		.block_cycles = 500,
 		.cache_size = get_page_size(),
-		.lookahead_size = 16
+		.lookahead_size = get_len_bytes() / get_block_size() / 8
 	};
-
-	m_fs.context = this;
 
 	m_lfs_read_buf.resize(m_config.cache_size);
 	m_lfs_prog_buf.resize(m_config.cache_size);
 	m_lfs_lookahead_buf.resize(m_config.lookahead_size);
+
+    m_config.read_buffer      = m_lfs_read_buf.data();
+    m_config.prog_buffer      = m_lfs_prog_buf.data();
+    m_config.lookahead_buffer = m_lfs_lookahead_buf.data();
 }
 
-int SPIFFS_int::format()
+int LFS_int::format()
 {
 	if( is_mounted )
 	{
@@ -108,7 +106,7 @@ int SPIFFS_int::format()
 	return format_ret;
 }
 
-int SPIFFS_int::mount()
+int LFS_int::mount()
 {
 	if(is_mounted)
 	{
@@ -122,9 +120,9 @@ int SPIFFS_int::mount()
 	return res;
 }
 
-void SPIFFS_int::unmount()
+int LFS_int::unmount()
 {
-	int res = lfs_unmount(&m_fs, &m_config);
+	int res = lfs_unmount(&m_fs);
 
 	if(res == LFS_ERR_OK)
 	{
@@ -134,11 +132,15 @@ void SPIFFS_int::unmount()
 	return res;
 }
 
-void SPIFFS_int::lock_fs()
+int LFS_int::lock_fs()
 {
 	m_fs_mutex.lock();
+
+	return LFS_ERR_OK;
 }
-void SPIFFS_int::unlock_fs()
+int LFS_int::unlock_fs()
 {
 	m_fs_mutex.unlock();
+
+	return LFS_ERR_OK;
 }
