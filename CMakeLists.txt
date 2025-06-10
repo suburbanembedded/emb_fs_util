@@ -20,70 +20,74 @@ if(DEFINED Doxygen::doxygen)
 	)
 endif()
 
-add_library(spiffs_util
-	spiffs_util/spiffs_int.cpp
-)
-
-target_link_libraries(spiffs_util
-	spiffs
-	freertos_cpp_util
-)
-
-if(DEFINED Doxygen::doxygen)
-	doxygen_add_docs(spiffs_util_docs
-		spiffs_util/
+if(TARGET spiffs)
+	add_library(spiffs_util
+		spiffs_util/spiffs_int.cpp
 	)
+
+	target_link_libraries(spiffs_util
+		spiffs
+		freertos_cpp_util
+	)
+
+	if(DEFINED Doxygen::doxygen)
+		doxygen_add_docs(spiffs_util_docs
+			spiffs_util/
+		)
+	endif()
+
+	target_include_directories(spiffs_util
+		PUBLIC
+			${CMAKE_CURRENT_SOURCE_DIR}/spiffs_util
+	)
+
+	add_library(spiffs_flash
+		spiffs_flash/spiffs_int_w25q16jv.cpp
+	)
+
+	target_link_libraries(spiffs_flash
+		spiffs_util
+		spi_flash
+	)
+
+	target_include_directories(spiffs_flash
+		PUBLIC
+			${CMAKE_CURRENT_SOURCE_DIR}/spiffs_flash
+	)
+
+	if(DEFINED Doxygen::doxygen)
+		doxygen_add_docs(spiffs_flash_docs
+			spiffs_flash/
+		)
+	endif()
 endif()
 
-target_include_directories(spiffs_util
-	PUBLIC
-		${CMAKE_CURRENT_SOURCE_DIR}/spiffs_util
-)
+if(TARGET lfs)
+	add_library(lfs_util
+		lfs_util/lfs_int.cpp
+	)
 
-add_library(spiffs_flash
-	spiffs_flash/spiffs_int_w25q16jv.cpp
-)
+	target_link_libraries(lfs_util
+		lfs
+		freertos_cpp_util
+	)
 
-target_link_libraries(spiffs_flash
-	spiffs_util
-	spi_flash
-)
+	target_include_directories(lfs_util
+		PUBLIC
+			${CMAKE_CURRENT_SOURCE_DIR}/lfs_util
+	)
 
-target_include_directories(spiffs_flash
-	PUBLIC
-		${CMAKE_CURRENT_SOURCE_DIR}/spiffs_flash
-)
+	add_library(lfs_flash
+		lfs_flash/lfs_int_w25q16jv.cpp
+	)
 
-if(DEFINED Doxygen::doxygen)
-	doxygen_add_docs(spiffs_flash_docs
-		spiffs_flash/
+	target_link_libraries(lfs_flash
+		lfs_util
+		spi_flash
+	)
+
+	target_include_directories(lfs_flash
+		PUBLIC
+			${CMAKE_CURRENT_SOURCE_DIR}/lfs_flash
 	)
 endif()
-
-add_library(lfs_util
-	lfs_util/lfs_int.cpp
-)
-
-target_link_libraries(lfs_util
-	lfs
-	freertos_cpp_util
-)
-
-target_include_directories(lfs_util
-	PUBLIC
-		${CMAKE_CURRENT_SOURCE_DIR}/lfs_util
-)
-
-add_library(lfs_flash
-	lfs_flash/lfs_int_w25q16jv.cpp
-)
-
-target_link_libraries(lfs_flash
-	lfs_util
-	spi_flash
-)
-
-target_include_directories(lfs_flash
-	PUBLIC
-		${CMAKE_CURRENT_SOURCE_DIR}/lfs_flash
-)
