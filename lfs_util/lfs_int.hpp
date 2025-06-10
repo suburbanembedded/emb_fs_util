@@ -51,10 +51,10 @@ public:
 	int lock_fs();
 	int unlock_fs();
 
-	virtual int read(lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size);
-	virtual int write(lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size);
-	virtual int erase(lfs_block_t block);
-	virtual int sync();
+	virtual int read(lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size) = 0;
+	virtual int write(lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size) = 0;
+	virtual int erase(lfs_block_t block) = 0;
+	virtual int sync() = 0;
 
 	virtual size_t get_start_bytes() = 0;
 	virtual size_t get_len_bytes() = 0;
