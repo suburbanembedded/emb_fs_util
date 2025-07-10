@@ -27,6 +27,11 @@ public:
 	{
 		const uint32_t addr = get_start_bytes() + block * get_block_size() + off;
 
+		if(addr < get_start_bytes())
+		{
+			return LFS_ERR_INVAL;
+		}
+
 		if((addr + size) >= (get_start_bytes() + get_len_bytes()))
 		{
 			return LFS_ERR_INVAL;
@@ -49,6 +54,11 @@ public:
 			return LFS_ERR_INVAL;
 		}
 
+		if(addr < get_start_bytes())
+		{
+			return LFS_ERR_INVAL;
+		}
+
 		if((addr + size) >= (get_start_bytes() + get_len_bytes()))
 		{
 			return LFS_ERR_INVAL;
@@ -67,7 +77,12 @@ public:
 	{
 		const uint32_t addr = get_start_bytes() + block * get_block_size();
 
-		if((addr) >= (get_start_bytes() + get_len_bytes()))
+		if(addr < get_start_bytes())
+		{
+			return LFS_ERR_INVAL;
+		}
+
+		if(addr >= (get_start_bytes() + get_len_bytes()))
 		{
 			return LFS_ERR_INVAL;
 		}
