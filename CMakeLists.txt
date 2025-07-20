@@ -65,6 +65,7 @@ endif()
 if(TARGET lfs)
 	add_library(lfs_util
 		lfs_util/lfs_int.cpp
+		lfs_util/lfs_file_move.cpp
 	)
 
 	target_link_libraries(lfs_util
