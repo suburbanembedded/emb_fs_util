@@ -25,7 +25,17 @@ public:
 
 	int read(lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size) override
 	{
-		const uint32_t addr = block * get_block_size() + off;
+		const uint32_t addr = get_start_bytes() + block * get_block_size() + off;
+
+		if(addr < get_start_bytes())
+		{
+			return LFS_ERR_INVAL;
+		}
+
+		if((addr + size) >= (get_start_bytes() + get_len_bytes()))
+		{
+			return LFS_ERR_INVAL;
+		}
 
 		if(!m_flash->read4(addr, size, static_cast<uint8_t*>(buffer)))
 		{
@@ -34,11 +44,22 @@ public:
 
 		return LFS_ERR_OK;
 	}
+
 	int write(lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size) override
 	{
-		const uint32_t addr = block * get_block_size() + off;
+		const uint32_t addr = get_start_bytes() + block * get_block_size() + off;
 
 		if( size > get_page_size() )
+		{
+			return LFS_ERR_INVAL;
+		}
+
+		if(addr < get_start_bytes())
+		{
+			return LFS_ERR_INVAL;
+		}
+
+		if((addr + size) >= (get_start_bytes() + get_len_bytes()))
 		{
 			return LFS_ERR_INVAL;
 		}
@@ -51,9 +72,20 @@ public:
 
 		return LFS_ERR_OK;
 	}
+
 	int erase(lfs_block_t block) override
 	{
-		const uint32_t addr = block * get_block_size();
+		const uint32_t addr = get_start_bytes() + block * get_block_size();
+
+		if(addr < get_start_bytes())
+		{
+			return LFS_ERR_INVAL;
+		}
+
+		if(addr >= (get_start_bytes() + get_len_bytes()))
+		{
+			return LFS_ERR_INVAL;
+		}
 
 		//we are alligned to block2 boundary
 		if(!m_flash->cmd_block64_erase(addr))
@@ -63,6 +95,7 @@ public:
 
 		return LFS_ERR_OK;
 	}
+
 	int sync() override
 	{
 		return LFS_ERR_OK;
@@ -72,23 +105,27 @@ public:
 	{
 		return 0;
 	}
+
 	size_t get_len_bytes() override
 	{
-		return 2*1024*1024;
+		return 2UL*1024UL*1024UL;
 	}
 
 	size_t get_min_read_size() override
 	{
 		return 1;
 	}
+
 	size_t get_page_size() override
 	{
 		return m_flash->PAGE_LEN;
 	}
+
 	size_t get_block_size() override
 	{
 		return m_flash->BLOCK64_LEN;
 	}
+
 	size_t get_erase_size() override
 	{
 		return m_flash->BLOCK64_LEN;
