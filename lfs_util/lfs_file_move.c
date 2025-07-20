@@ -14,6 +14,11 @@ struct lfs_mlist* get_prev_node(struct lfs_mlist* const head, struct lfs_mlist* 
 		prev = prev->next;
 	}
 
+	if(prev->next != node)
+	{
+		return NULL;
+	}
+
 	return prev;
 }
 
